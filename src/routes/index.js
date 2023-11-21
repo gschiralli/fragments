@@ -17,10 +17,8 @@ router.use(`/v1`, authenticate(), require('./api'));
 
 router.get('/', (req, res) => {
   // Clients shouldn't cache this response (always request it fresh)
-  // See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching#controlling_caching
   res.setHeader('Cache-Control', 'no-cache');
 
-  // Send a 200 'OK' response with info about our repo
   res.status(200).json(
     response.createSuccessResponse(    {
       author,

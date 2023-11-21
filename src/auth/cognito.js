@@ -9,7 +9,6 @@ if (!(process.env.AWS_COGNITO_POOL_ID && process.env.AWS_COGNITO_CLIENT_ID)) {
 }
 // Create a Cognito JWT Verifier, which will confirm that any JWT we
 // get from a user is valid and something we can trust. See:
-// https://github.com/awslabs/aws-jwt-verify#cognitojwtverifier-verify-parameters
 const jwtVerifier = CognitoJwtVerifier.create({
   // These variables must be set in the .env
   userPoolId: process.env.AWS_COGNITO_POOL_ID,
@@ -21,9 +20,6 @@ const jwtVerifier = CognitoJwtVerifier.create({
 logger.info('Configured to use AWS Cognito for Authorization');
 
 // At startup, download and cache the public keys (JWKS) we need in order to
-// verify our Cognito JWTs, see https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-sets
-// You can try this yourself using:
-// curl https://cognito-idp.us-east-1.amazonaws.com/<user-pool-id>/.well-known/jwks.json
 jwtVerifier
   .hydrate()
   .then(() => {
