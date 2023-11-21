@@ -54,5 +54,5 @@ jobs:
           cache: 'npm'
       
       - name: Install node dependencies and run Tests
-        run: npm installi-ci-test
+        run: npm install-ci-test
   
