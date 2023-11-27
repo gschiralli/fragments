@@ -3,7 +3,7 @@
 const { randomUUID } = require('crypto');
 // Use https://www.npmjs.com/package/content-type to create/parse Content-Type headers
 const contentType = require('content-type');
-
+const logger = require('../logger');
 // Functions for working with fragment metadata/data using our DB
 const {
   readFragment,
@@ -16,32 +16,24 @@ const {
 
 class Fragment {
   constructor({ id, ownerId, created, updated, type, size = 0 }) {
-    if (
-      (ownerId &&
-        type &&
-        Fragment.isSupportedType(type) &&
-        typeof size === 'number' &&
-        size >= 0) ||
-      /;\s*charset=/.test(type)
-    ){
-      this.size = size || 0
+    if (!type) {
+      throw new Error('type is required');
+    } else if (!ownerId) {
+      throw new Error('owner id required');
+    } else if (!ownerId | !type) {
+      throw new Error('owner Id and type are required');
+    } else if (typeof size !== 'number' || size < 0) {
+      throw new Error('size must be a positive number');
+    } else if (!Fragment.isSupportedType(type)) {
+      throw new Error('invalid type');
+    } else {
       this.id = id || randomUUID();
       this.ownerId = ownerId;
-      this.created = created || new Date().toString();
-      this.updated = updated || new Date().toString();
+      this.created = created || new Date().toISOString();
+      this.updated = updated || new Date().toISOString();
       this.type = type;
-      
-    } else{
-      if (!ownerId) {
-        throw new Error(`Fragment missing ownerId not found!`);
-      }
-      if (!type) {
-        throw new Error(`Fragment missing type not found!`);
-      } else {
-        throw new Error('Fragment type or size is wrong');
-      }
+      this.size = size;
     }
-   
   }
 
   /**
@@ -51,7 +43,8 @@ class Fragment {
    * @returns Promise<Array<Fragment>>
    */
   static async byUser(ownerId, expand = false) {
-    return listFragments(ownerId,expand);
+    logger.debug({ ownerId, expand }, 'Fragment.byUser()');
+    return listFragments(ownerId, expand);
   }
 
   /**
@@ -61,19 +54,24 @@ class Fragment {
    * @returns Promise<Fragment>
    */
   static async byId(ownerId, id) {
-    const fragment = await readFragment(ownerId,id);
-    if (!fragment) throw new Error(`fragment with id: ${id} not found`)
-    return Promise.resolve(fragment)
+    try {
+      const fragment = await readFragment(ownerId, id);
+      if (!fragment) {
+        throw new Error('no fragment found');
+      }
+      return fragment;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
-
   /**
    * Delete the user's fragment data and metadata for the given id
    * @param {string} ownerId user's hashed email
    * @param {string} id fragment's id
    * @returns Promise<void>
    */
-  static async delete(ownerId, id) {
-    return deleteFragment(ownerId,id);
+  static delete(ownerId, id) {
+    return deleteFragment(ownerId, id);
   }
 
   /**
@@ -81,8 +79,8 @@ class Fragment {
    * @returns Promise<void>
    */
   save() {
-    this.updated = new Date().toString();
-    return writeFragment(this)
+    this.updated = new Date().toISOString(); // Update the 'updated' property with a new timestamp
+    return writeFragment(this);
   }
 
   /**
@@ -90,7 +88,7 @@ class Fragment {
    * @returns Promise<Buffer>
    */
   getData() {
-    return readFragmentData(this.ownerId, this.id)
+    return readFragmentData(this.ownerId, this.id);
   }
 
   /**
@@ -99,13 +97,12 @@ class Fragment {
    * @returns Promise<void>
    */
   async setData(data) {
-    if (Buffer.isBuffer(data)) {
-      this.updated = new Date().toString();
-      this.size = Buffer.byteLength(data);
-      return writeFragmentData(this.ownerId, this.id, data);
-    } else {
-      throw new Error(`Data is Empty!`);
+    if (!Buffer.isBuffer(data)) {
+      throw new Error('data doesnt contain Buffer');
     }
+    this.size = Buffer.byteLength(data);
+    await this.save();
+    return await writeFragmentData(this.ownerId, this.id, data);
   }
 
   /**
@@ -115,7 +112,7 @@ class Fragment {
    */
   get mimeType() {
     const { type } = contentType.parse(this.type);
-    return type.toString();
+    return type;
   }
 
   /**
@@ -123,7 +120,11 @@ class Fragment {
    * @returns {boolean} true if fragment's type is text/*
    */
   get isText() {
-    return this.type.startsWith('text/')
+    if (this.mimeType.match(/text\/+/)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -131,10 +132,16 @@ class Fragment {
    * @returns {Array<string>} list of supported mime types
    */
   get formats() {
-    if(this.type.startsWith('text/plain')){
-      return ['text/plain']
-    }else{
-      return []
+    if (this.mimeType === 'text/plain') {
+      return ['text/plain'];
+    } else if (this.mimeType === 'text/markdown') {
+      return ['text/plain', 'text/markdown', 'text/html'];
+    } else if (this.mimeType === 'application/json') {
+      return ['text/plain', 'application/json'];
+    } else if (this.mimeType === 'text/html') {
+      return ['text/plain', 'text/html'];
+    } else {
+      return false;
     }
   }
 
@@ -144,18 +151,13 @@ class Fragment {
    * @returns {boolean} true if we support this Content-Type (i.e., type/subtype)
    */
   static isSupportedType(value) {
-    let validType = [
-      'text/plain',
-      'text/plain; charset=utf-8',
-      'text/markdown',
-      'text/html',
-      'application/json',
-      'image/png',
-      'image/jpeg',
-      'image/webp',
-    ];
-
-    return validType.includes(value);
+    return (
+      value === 'text/plain' ||
+      value === 'text/plain; charset=utf-8' ||
+      value === 'application/json' ||
+      value === 'text/markdown' ||
+      value === 'text/html'
+    );
   }
 }
 
