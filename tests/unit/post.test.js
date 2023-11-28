@@ -11,15 +11,23 @@ describe('POST /v1/fragments', () => {
     request(app).post('/v1/fragments').auth('invalid@email.com', 'incorrect_password').expect(401));
 
   // Using a valid username/password pair should give a success result with a .fragments array
-  test('authenticated users get a fragments array', async () => {
+  test('authenticated users can create a text/plain fragment', async () => {
     const data = Buffer.from('a');
     const res = await request(app).post('/v1/fragments').auth('user1@email.com', 'password1').set('Content-Type', 'text/plain').send(data);
+
     
-  
     expect(res.statusCode).toBe(201);
-    
-    
+    expect(res.body.status).toBe('ok');
+    expect(res.body.fragment != null).toBe(true);
+       
   });
 
-  // TODO: we'll need to add tests to check the contents of the fragments array later
+  test('unsupported type fails',async ()=>{
+    const data = Buffer.from('asd');
+    const res = await request(app).post('/v1/fragments').auth('user1@email.com', 'password1').set('Content-Type', 'text/sdsdsd').send(data);
+
+    expect(res.statusCode).toBe(415)
+
+  })
+
 });
