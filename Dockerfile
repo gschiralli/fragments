@@ -1,7 +1,7 @@
 # Use node version 18.13.0
 FROM node:18.13.0
 
-LABEL maintainer="Kim Lee <gschiralli@hotmail.com>"
+LABEL maintainer="Gianni Schiralli <gschiralli@hotmail.com>"
 LABEL description="Fragments node.js microservice"
 
 # We default to use port 8080 in our service
