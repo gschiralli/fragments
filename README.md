@@ -2,7 +2,7 @@
 
 ## Description
 
-This is the back-end API for Fragments.
+This is the back-end API for fragments.
 
 ## Getting Started
 
