@@ -58,9 +58,9 @@ jobs:
           # so that we can always go back and re-create this setup again in the future
           # if we have to test or debug something. Second, we'll also replace the
           # `latest` tag, since this is our most up-to-date version.
-          VERSION_TAG: ${{ github.ref_name }}
+          # VERSION_TAG: ${{ github.ref_name }}
         uses: docker/build-push-action@v4
         with:
           push: true
           # Use the git tag version and `latest`
-          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.VERSION_TAG }}, ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:latest
+          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:latest
