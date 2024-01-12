@@ -28,6 +28,4 @@ module.exports = async (req, res) => {
     res.status(415).json(createErrorResponse(415,'Type not supported'))
   }
 
-  
-
 };
