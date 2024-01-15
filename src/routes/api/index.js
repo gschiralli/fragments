@@ -24,5 +24,6 @@ express.raw({
 router.post('/fragments', rawBody(), require('./post'));
 router.get('/fragments', require('./get.js'));
 router.get('/fragments/:id', require('./getById.js'));
+router.get('/fragments/:id/info', require('./getByIdInfo.js')); 
 
 module.exports = router;

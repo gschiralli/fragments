@@ -19,7 +19,7 @@ module.exports = async (req,res) =>{
     }
     
    catch (err) {
-    const errorResponse = createErrorResponse(404, err.message);
+    const errorResponse = response.createErrorResponse(404, err.message);
     logger.warn({ id, errorResponse }, 'Failed to retrieve fragment');
     res.status(404).json(err.message);
   }

@@ -63,3 +63,36 @@ describe('GET /v1/fragments?expand=1', () => {
     expect(resFragments[0].id).toBe(fragmentId1);
     expect(resFragments[1].id).toBe(fragmentId2);
   })});
+
+  describe('GET /v1/fragments/:id/info', () => {
+    // clean up after each test
+    afterEach(async () => {
+      await resetData('user1@email.com');
+    });
+  
+    test('return an existing fragment data', async () => {
+      const postResponse = await request(app)
+        .post('/v1/fragments')
+        .auth('user1@email.com', 'password1')
+        .set('Content-Type', 'text/plain')
+        .send('This is fragment1');
+  
+      const postedFragmentId = postResponse.body.fragment.id;
+  
+      const res = await request(app).get(`/v1/fragments/${postedFragmentId}/info`).auth('user1@email.com', 'password1');
+  
+      const resFragment = res.body.fragment;
+  
+      expect(res.status).toBe(200);
+      expect(resFragment.id).toEqual(postedFragmentId);
+      expect(typeof resFragment).toBe('object');
+    });
+  
+    test('requesting a non-existent fragment should throw', async () => {
+      const res = await request(app).get(`/v1/fragments/non-existent/info`).auth('user1@email.com', 'password1');
+  
+      expect(res.status).toBe(404);
+      expect(res.body.error.code).toBe(404);
+      expect(res.body.error.message).toBeDefined;
+    });
+  });
