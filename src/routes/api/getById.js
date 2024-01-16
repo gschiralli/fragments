@@ -96,53 +96,53 @@ const convertData = async (data, from, to) => {
       }
       break;
 
-    case 'image/png':
-      if (to == 'jpg') {
-        convertedData = await sharp(data).jpeg().toBuffer();
-      }
-      if (to == 'webp') {
-        convertedData = await sharp(data).webp().toBuffer();
-      }
-      if (to == 'gif') {
-        convertedData = await sharp(data).gif().toBuffer();
-      }
-      break;
+    // case 'image/png':
+    //   if (to == 'jpg') {
+    //     convertedData = await sharp(data).jpeg().toBuffer();
+    //   }
+    //   if (to == 'webp') {
+    //     convertedData = await sharp(data).webp().toBuffer();
+    //   }
+    //   if (to == 'gif') {
+    //     convertedData = await sharp(data).gif().toBuffer();
+    //   }
+    //   break;
 
-    case 'image/jpeg':
-      if (to == 'png') {
-        convertedData = await sharp(data).png().toBuffer();
-      }
-      if (to == 'webp') {
-        convertedData = await sharp(data).webp().toBuffer();
-      }
-      if (to == 'gif') {
-        convertedData = await sharp(data).gif().toBuffer();
-      }
-      break;
+    // case 'image/jpeg':
+    //   if (to == 'png') {
+    //     convertedData = await sharp(data).png().toBuffer();
+    //   }
+    //   if (to == 'webp') {
+    //     convertedData = await sharp(data).webp().toBuffer();
+    //   }
+    //   if (to == 'gif') {
+    //     convertedData = await sharp(data).gif().toBuffer();
+    //   }
+    //   break;
 
-    case 'image/webp':
-      if (to == 'png') {
-        convertedData = await sharp(data).png().toBuffer();
-      }
-      if (to == 'jpg') {
-        convertedData = await sharp(data).jpeg().toBuffer();
-      }
-      if (to == 'gif') {
-        convertedData = await sharp(data).gif().toBuffer();
-      }
-      break;
+    // case 'image/webp':
+    //   if (to == 'png') {
+    //     convertedData = await sharp(data).png().toBuffer();
+    //   }
+    //   if (to == 'jpg') {
+    //     convertedData = await sharp(data).jpeg().toBuffer();
+    //   }
+    //   if (to == 'gif') {
+    //     convertedData = await sharp(data).gif().toBuffer();
+    //   }
+    //   break;
 
-    case 'image/gif':
-      if (to == 'png') {
-        convertedData = await sharp(data).png().toBuffer();
-      }
-      if (to == 'jpg') {
-        convertedData = await sharp(data).jpeg().toBuffer();
-      }
-      if (to == 'webp') {
-        convertedData = await sharp(data).webp().toBuffer();
-      }
-      break;
+    // case 'image/gif':
+    //   if (to == 'png') {
+    //     convertedData = await sharp(data).png().toBuffer();
+    //   }
+    //   if (to == 'jpg') {
+    //     convertedData = await sharp(data).jpeg().toBuffer();
+    //   }
+    //   if (to == 'webp') {
+    //     convertedData = await sharp(data).webp().toBuffer();
+    //   }
+    //   break;
   }
 
   logger.debug(`Fragment data was successfully converted from ${from} to ${to}`);
