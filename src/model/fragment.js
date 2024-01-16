@@ -56,12 +56,18 @@ class Fragment {
   static async byId(ownerId, id) {
     try {
       const fragment = await readFragment(ownerId, id);
+
       if (!fragment) {
-        throw new Error('no fragment found');
+        throw new Error(`no fragment with provided id was found in database`);
       }
-      return fragment;
-    } catch (error) {
-      throw new Error(error);
+
+      if (fragment instanceof Fragment) {
+        return Promise.resolve(fragment);
+      } else {
+        return Promise.resolve(new Fragment(fragment));
+      }
+    } catch (err) {
+      throw new Error(`error retrieving fragment: ${err.message}`);
     }
   }
   /**
@@ -87,8 +93,18 @@ class Fragment {
    * Gets the fragment's data from the database
    * @returns Promise<Buffer>
    */
-  getData() {
-    return readFragmentData(this.ownerId, this.id);
+  async getData() {
+    try {
+      const fragmentData = await readFragmentData(this.ownerId, this.id);
+
+      if (!fragmentData) {
+        throw new Error(`no fragment data was found in database`);
+      }
+
+      return Promise.resolve(fragmentData);
+    } catch (err) {
+      throw new Error(`error retrieving fragment data: ${err.message}`);
+    }
   }
 
   /**
@@ -132,16 +148,27 @@ class Fragment {
    * @returns {Array<string>} list of supported mime types
    */
   get formats() {
-    if (this.mimeType === 'text/plain') {
-      return ['text/plain'];
-    } else if (this.mimeType === 'text/markdown') {
-      return ['text/plain', 'text/markdown', 'text/html'];
-    } else if (this.mimeType === 'application/json') {
-      return ['text/plain', 'application/json'];
-    } else if (this.mimeType === 'text/html') {
-      return ['text/plain', 'text/html'];
-    } else {
-      return false;
+    switch (this.mimeType) {
+      case 'text/plain':
+        return ['text/plain'];
+
+      case 'text/markdown':
+        return ['text/markdown', 'text/html', 'text/plain'];
+
+      case 'text/html':
+        return ['text/html', 'text/plain'];
+
+      case 'application/json':
+        return ['application/json', 'text/plain'];
+
+      case 'image/png':
+      case 'image/jpeg':
+      case 'image/webp':
+      case 'image/gif':
+        return ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+
+      default:
+        return null;
     }
   }
 
