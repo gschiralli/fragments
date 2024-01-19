@@ -54,3 +54,9 @@ npm install
 	```bash 
 	npm run debug
 	```
+-   **Lint:**
+    
+    Run Jest to test your code:
+    ```bash
+    npm run test
+    ```
